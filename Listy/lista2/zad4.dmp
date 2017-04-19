@@ -1,0 +1,14 @@
+-- #4
+--
+-- Zapisz zapytanie trzecie, używając różnicy zbiorów.
+(SELECT DISTINCT u.kod_uz, u.imie, u.nazwisko
+FROM uzytkownik u
+	JOIN grupa USING(kod_uz)
+WHERE grupa.rodzaj_zajec='w'
+)
+EXCEPT 
+(SELECT DISTINCT u.kod_uz, u.imie, u.nazwisko 
+FROM uzytkownik u
+	JOIN grupa USING(kod_uz)
+WHERE grupa.rodzaj_zajec='s'
+);

@@ -1,0 +1,23 @@
+--#8
+-- 
+-- Podaj nazwę przedmiotu podstawowego, na wykład do którego chodziło najwięcej różnych osób. 
+-- Użyj w tym celu zapytania z GROUP BY i HAVING (z warunkiem używającym ponownie GROUP BY).
+SELECT przedmiot.nazwa
+FROM przedmiot
+	JOIN przedmiot_semestr USING (kod_przed)
+	JOIN grupa USING (kod_przed_sem)
+	JOIN wybor USING (kod_grupy)
+WHERE przedmiot.rodzaj='p'
+	AND grupa.rodzaj_zajec='w'
+GROUP BY przedmiot.kod_przed
+HAVING COUNT(DISTINCT wybor.kod_uz)>=
+ALL(
+ SELECT COUNT(DISTINCT wybor.kod_uz)
+ FROM przedmiot
+	JOIN przedmiot_semestr USING (kod_przed)
+	JOIN grupa USING (kod_przed_sem)
+	JOIN wybor USING (kod_grupy)
+ WHERE przedmiot.rodzaj='p'
+	AND grupa.rodzaj_zajec='w'
+ GROUP BY przedmiot.kod_przed
+);

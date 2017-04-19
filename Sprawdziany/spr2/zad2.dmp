@@ -1,0 +1,22 @@
+-- Zadanie 2
+--
+-- Wypisz id, imię i nazwisko dla wszystkich osób, których komentarze zostały łącznie polubione
+-- maksymalnie wiele razy, przy czym liczymy wyłącznie polubienia z dnia 1 grudnia 2011 i później.
+
+WITH os AS(
+  SELECT ccp.personid, ccp.commentid, COUNT(*) AS counter
+  FROM person_likes_comment plc
+	JOIN comment c ON (plc.commentid=c.id)
+	JOIN comment_hascreator_person ccp ON (ccp.commentid=c.id)
+  WHERE plc.creationdate::Date > '2011.12.01'
+  GROUP BY ccp.personid, ccp.commentid
+),
+max AS(
+  SELECT MAX(o.counter) AS _max
+  FROM os o
+)
+( SELECT id, firstname, lastname  
+  FROM os
+	JOIN max ON(counter=_max)
+	JOIN person ON (id=personid)
+);

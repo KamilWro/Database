@@ -1,0 +1,13 @@
+--
+-- #5
+-- Ile osób prowadziło ćwiczenia do przedmiotów obowiązkowych w semestrach zimowych? Do odpowiedzi 
+-- wliczamy sztucznych użytkowników (o “dziwnych” nazwiskach).
+SELECT DISTINCT uzytkownik.imie||' '||uzytkownik.nazwisko, uzytkwnik.kod_uz
+FROM uzytkownik
+	JOIN grupa USING(kod_uz) 
+	JOIN przedmiot_semestr USING(kod_przed_sem)
+	JOIN przedmiot USING(kod_przed)
+	JOIN semestr USING(semestr_id) 
+WHERE przedmiot.rodzaj='o'
+	AND grupa.rodzaj_zajec IN ('c','C')
+	AND semestr.nazwa LIKE '%zimowy%';

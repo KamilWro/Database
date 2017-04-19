@@ -1,0 +1,13 @@
+--
+-- #6
+--
+-- Podaj nazwy wszystkich przedmiotów (w kolejności alfabetycznej, oddzielone przecinkami, 
+-- a wewnątrz nazw pojedyńczymi spacjami), do których zajęcia prowadził użytkownik o nazwisku Urban.
+SELECT DISTINCT przedmiot.nazwa
+FROM uzytkownik
+	JOIN grupa USING(kod_uz)
+	JOIN przedmiot_semestr USING (kod_przed_sem)
+	JOIN przedmiot USING (kod_przed) 
+WHERE uzytkownik.nazwisko='Urban'
+	AND grupa.rodzaj_zajec in ('C','c')
+ORDER BY 1;

@@ -1,0 +1,21 @@
+--
+-- #9
+-- W którym semestrze (podaj numer) było najmniej przedmiotów obowiązkowych (rozważ tylko semestry, 
+-- gdy był co najmniej jeden)?
+
+--
+-- #11 
+-- W którym semestrze (podaj numer) było najwięcej przedmiotów obowiązkowych?
+
+SELECT DISTINCT semestr.semestr_id
+FROM semestr
+	JOIN przedmiot_semestr USING (semestr_id)
+	JOIN przedmiot USING (kod_przed)
+WHERE przedmiot.rodzaj='o';
+
+SELECT DISTINCT przedmiot.kod_przed
+FROM przedmiot
+	JOIN przedmiot_semestr (kod_przed)
+WHERE przedmiot.rodzaj='o',
+	przedmiot_semestr.semestr_id=??;
+

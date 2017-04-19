@@ -1,0 +1,13 @@
+-- Zadanie 4
+-- 
+-- Wypisz imiona i nazwiska osób, które nie polubiły żadnego komentarza. Zadbaj aby wyniki się nie 
+-- powtarzały oraz były posorotwane alfabetycznie: w pierwszej kolejności wg nazwisk, w drugiej wg imion.
+
+SELECT p.firstname,p.lastname
+FROM person p
+ JOIN 
+((SELECT DISTINCT p.id FROM person p)
+EXCEPT
+(SELECT DISTINCT p.personid AS "id" FROM person_likes_comment p)) AB
+ USING (id)
+ORDER BY 2,1;

@@ -1,0 +1,22 @@
+-- #2
+--
+-- Zapisz zapytanie pierwsze używając operatora EXISTS z podzapytaniem.
+SELECT DISTINCT u.kod_uz,u.imie,u.nazwisko
+FROM uzytkownik u
+	JOIN wybor USING (kod_uz)
+	JOIN grupa USING (kod_grupy)
+	JOIN przedmiot_semestr ps1 USING(kod_przed_sem)
+	JOIN przedmiot p USING (kod_przed)
+WHERE p.nazwa LIKE 'Algorytmy i struktury danych%'
+AND EXISTS (
+ SELECT *
+ FROM wybor w
+	JOIN grupa USING(kod_grupy) 
+	JOIN przedmiot_semestr ps2 USING(kod_przed_sem)
+	JOIN przedmiot USING(kod_przed)
+ WHERE ps2.semestr_id>ps1.semestr_id
+	AND przedmiot.nazwa LIKE 'Matematyka dyskretna%'
+	AND w.kod_uz=u.kod_uz
+)
+ORDER BY 1;
+

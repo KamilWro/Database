@@ -1,0 +1,12 @@
+-- #7
+--
+-- Podaj kody, imiona i nazwiska wszystkich prowadzących, którzy w jakiejś prowadzonej przez siebie
+-- grupie mieli więcej zapisanych osób, niż wynosił limit max_osoby dla tej grupy. Do zapisania
+-- zapytania użyj GROUP BY i HAVING.
+SELECT DISTINCT u.kod_uz, u.imie, u.nazwisko
+FROM wybor 
+	JOIN grupa USING (kod_grupy) 
+	JOIN uzytkownik u ON (u.kod_uz=grupa.kod_uz)
+GROUP BY grupa.kod_grupy, u.kod_uz, u.imie, u.nazwisko
+HAVING COUNT(*)>grupa.max_osoby;
+

@@ -1,0 +1,18 @@
+--
+-- #8
+-- Ile osób co najmniej dwukrotnie się zapisało na Algorytmy i struktury danych (M) w różnych 
+-- semestrach (na dowolne zajęcia)?
+SELECT DISTINCT u.kod_uz 
+FROM uzytkownik u
+	JOIN wybor w1 USING (kod_uz)
+	JOIN grupa g1 USING (kod_grupy)
+	JOIN przedmiot_semestr ps1 USING(kod_przed_sem)
+	JOIN przedmiot p1 USING (kod_przed)
+	JOIN wybor w2 ON (w2.kod_uz=u.kod_uz)
+	JOIN grupa g2 ON (g2.kod_grupy=w2.kod_grupy)
+	JOIN przedmiot_semestr ps2 ON (ps2.kod_przed_sem=g2.kod_przed_sem)
+	JOIN przedmiot p2 ON (p2.kod_przed=ps2.kod_przed)
+WHERE p1.nazwa=p2.nazwa
+	AND p1.nazwa='Algorytmy i struktury danych (M)'
+	AND ps1.semestr_id<>ps2.semestr_id;
+

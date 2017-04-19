@@ -1,0 +1,13 @@
+--
+-- #10
+--
+-- Ile grup ćwiczeniowych z Logiki dla informatyków  było w semestrze zimowym  2010/2011?
+SELECT  grupa.kod_grupy
+FROM przedmiot_semestr
+	JOIN przedmiot USING (kod_przed)
+	JOIN semestr USING (semestr_id)
+	JOIN grupa USING (kod_przed_sem)
+WHERE przedmiot.nazwa LIKE 'Logika dla informatyków%'
+	AND semestr.nazwa='Semestr zimowy 2010/2011' 
+	AND grupa.rodzaj_zajec IN ('c','C')
+	

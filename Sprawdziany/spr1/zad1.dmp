@@ -1,0 +1,13 @@
+-- Zadanie 1
+-- 
+-- Wypisz ile jest wszystkich kobiet, które spełniają jednocześnie następujące warunki:
+--		używają przeglądarki Firefox
+-- 		urodziły się w styczniu
+--		mają mniej niż 30 lat (na dziś)
+
+SELECT *
+FROM person p
+WHERE p.gender='female'
+  AND EXTRACT(month FROM p.birthday)='01'
+  AND p.browserused='Firefox'
+  AND EXTRACT(year FROM now())- EXTRACT(year FROM p.birthday)<30;

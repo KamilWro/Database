@@ -1,0 +1,10 @@
+--
+-- #15
+--
+-- Ile grup ćwiczenio-pracowni prowadziła P. Kanarek?
+SELECT grupa.kod_grupy
+FROM grupa
+	JOIN uzytkownik USING (kod_uz)
+WHERE grupa.rodzaj_zajec='r'
+	AND uzytkownik.imie LIKE 'P%'
+	AND uzytkownik.nazwisko='Kanarek'

@@ -1,0 +1,12 @@
+-- Zadanie 3
+-- 
+-- Wypisz imiona i nazwiska osób, które napisały jakiegoś posta oraz komentarz będący odpowiedzią na
+-- tego posta. Jak poprzednio interesują nas wyłącznie osoby z nazwiskami na literę E.
+
+SELECT DISTINCT p.firstname, p.lastname
+FROM person p, post_hascreator_person p1, comment_hascreator_person c1
+ JOIN comment_replyof_post r USING (commentid)
+WHERE c1.personid=p.id
+  AND p1.personid=p.id
+  AND p1.postid=r.postid
+  AND p.lastname LIKE 'E%';

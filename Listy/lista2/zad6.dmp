@@ -1,0 +1,33 @@
+-- #6
+--
+-- Podaj kody użytkowników, którzy uczęszczali w semestrze letnim 2010/2011 na wykład z 'Baz danych'
+-- i nie uczęszczali na wykład z 'Sieci komputerowych', i odwrotnie. Sformułuj to zapytanie używając 
+-- instrukcji WITH, by wstępnie zdefiniować zbiory osób uczęszczających na każdy z wykładów.
+WITH BD AS (SELECT uzytkownik.kod_uz 
+FROM uzytkownik 
+	JOIN wybor USING (kod_uz)
+	JOIN grupa USING (kod_grupy)
+	JOIN przedmiot_semestr USING(kod_przed_sem) 
+	JOIN przedmiot USING(kod_przed)
+	JOIN semestr USING (semestr_id)
+WHERE przedmiot.nazwa='Bazy danych' 
+	AND semestr.nazwa='Semestr letni 2010/2011' 
+	AND grupa.rodzaj_zajec='w'),
+SK AS	
+(SELECT uzytkownik.kod_uz 
+FROM uzytkownik 
+	JOIN wybor USING (kod_uz)
+	JOIN grupa USING (kod_grupy)
+	JOIN przedmiot_semestr USING(kod_przed_sem) 
+	JOIN przedmiot USING(kod_przed)
+	JOIN semestr USING (semestr_id)
+WHERE przedmiot.nazwa='Sieci komputerowe' 
+	AND semestr.nazwa='Semestr letni 2010/2011' 
+	AND grupa.rodzaj_zajec='w')	
+(
+(SELECT * FROM BD
+UNION SELECT * FROM SK) 
+EXCEPT
+(SELECT * FROM BD
+INTERSECT SELECT * FROM SK)
+)

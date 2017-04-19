@@ -1,0 +1,7 @@
+--
+-- #12
+--Ile przedmiotów ma w nazwie dopisek '(ang.)'?
+
+SELECT przedmiot.nazwa
+FROM przedmiot
+WHERE przedmiot.nazwa LIKE '%(ang.)';

@@ -1,0 +1,23 @@
+--#9
+--
+-- Dla każdego semestru letniego podaj jego numer oraz nazwisko osoby, która jako pierwsza zapisała 
+-- się na zajęcia w tym semestrze. Jeśli w semestrze było kilka osób, które zapisały się jednocześnie:
+-- podaj wszystkie;
+-- podaj tę o najwcześniejszym leksykograficznie nazwisku.
+
+WITH zapisy AS(
+ SELECT s.semestr_id, MIN(wybor.data) AS "data"
+ FROM wybor
+	JOIN grupa USING (kod_grupy)
+	JOIN przedmiot_semestr USING (kod_przed_sem)
+	JOIN semestr s USING (semestr_id)
+ WHERE s.nazwa LIKE '%letni%'
+ GROUP BY s.semestr_id
+)
+(
+ SELECT z.semestr_id, u.nazwisko
+ FROM uzytkownik u
+ 	JOIN wybor USING (kod_uz)
+	JOIN zapisy z USING (data)
+ ORDER BY 1,2
+);

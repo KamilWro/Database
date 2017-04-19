@@ -1,0 +1,17 @@
+--
+-- #3
+--
+-- Przez ile dni (zaokrągl wynik w górę) studenci zapisywali się na wykład z Matematyki dyskretnej 
+-- (M) w semestrze zimowym 2010/2011
+SELECT w1.data-w2.data
+FROM grupa  
+	JOIN przedmiot_semestr USING(kod_przed_sem)
+	JOIN przedmiot USING(kod_przed)
+	JOIN semestr USING(semestr_id) 
+	JOIN wybor w1 USING(kod_grupy)
+	JOIN wybor w2 USING(kod_grupy)
+WHERE semestr.nazwa='Semestr zimowy 2010/2011' 
+	AND grupa.rodzaj_zajec='w' 
+	AND przedmiot.nazwa='Matematyka dyskretna (M)'
+	AND w1.data>w2.data
+ORDER BY 1 DESC; 

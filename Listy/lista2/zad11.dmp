@@ -1,0 +1,24 @@
+-- #11
+-- 
+-- Kto prowadzi w jednym semestrze wykład do przedmiotu i co najmniej dwie grupy innych zajęć do 
+-- tego przedmiotu (nie muszą być tego samego typu)?
+WITH wykladowca AS(
+ SELECT g.kod_uz, p.semestr_id,p.kod_przed_sem
+ FROM grupa g
+	JOIN przedmiot_semestr p USING (kod_przed_sem)
+ WHERE g.rodzaj_zajec='w'
+),
+prowadzacy AS(
+ SELECT g.kod_uz, p.semestr_id, p.kod_przed_sem
+ FROM grupa g
+	JOIN przedmiot_semestr p USING (kod_przed_sem)
+ WHERE g.rodzaj_zajec<>'w'
+ GROUP BY g.kod_uz, p.kod_przed_sem
+ HAVING COUNT (g.rodzaj_zajec)>=2
+)
+(
+ SELECT DISTINCT u.kod_uz, u.imie, u.nazwisko
+ FROM wykladowca
+ 	NATURAL JOIN prowadzacy
+ 	JOIN uzytkownik u USING (kod_uz)
+);

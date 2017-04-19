@@ -1,0 +1,11 @@
+--
+-- #14
+--
+-- Ile przedmiotów typu kurs nie miało edycji w żadnym semestrze
+-- (nie występują w tabeli przedmiot_semestr)?
+SELECT kod_przed
+FROM przedmiot
+WHERE rodzaj='k'
+EXCEPT
+SELECT kod_przed
+FROM przedmiot_semestr;

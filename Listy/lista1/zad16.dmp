@@ -1,0 +1,13 @@
+--
+-- #16
+--
+-- Ile grup z Logiki dla informatyków prowadził W. Charatonik?
+SELECT *
+FROM uzytkownik
+	JOIN grupa USING (kod_uz)
+	JOIN przedmiot_semestr USING(kod_przed_sem) 
+	JOIN przedmiot USING(kod_przed)
+WHERE uzytkownik.imie='Witold'
+	AND uzytkownik.nazwisko='Charatonik'
+	AND przedmiot.nazwa='Logika dla informatyków'
+	AND grupa.rodzaj_zajec='c';

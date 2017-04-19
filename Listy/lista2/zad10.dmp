@@ -1,0 +1,19 @@
+--#10
+--
+-- Jaka jest średnia liczba osób zapisujących się na wykład w semestrze letnim 2010/2011? 
+-- Zapisz to zapytanie definiując najpierw pomocniczą relację (np. na liście from z aliasem), 
+-- w której dla każdego interesującego cię wykładu znajdziesz liczbę zapisanych na niego osób).
+WITH zapisy AS(
+ SELECT wybor.kod_grupy, COUNT(DISTINCT wybor.kod_uz) AS "liczba_uz"
+ FROM wybor
+	JOIN grupa USING (kod_grupy)
+	JOIN przedmiot_semestr USING (kod_przed_sem)
+	JOIN semestr s USING (semestr_id)
+ WHERE s.nazwa='Semestr letni 2010/2011'
+ 	AND grupa.rodzaj_zajec='w'
+ GROUP BY wybor.kod_grupy
+)
+(
+ SELECT AVG(z.liczba_uz)
+ FROM zapisy z
+);

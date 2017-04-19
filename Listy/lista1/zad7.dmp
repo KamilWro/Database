@@ -1,0 +1,8 @@
+--
+-- #7
+--
+-- Ile jest w bazie osób o nazwisku Kabacki z dowolnym numerem na końcu?
+SELECT uzytkownik.kod_uz 
+FROM uzytkownik
+WHERE uzytkownik.nazwisko LIKE 'Kabacki%';
+

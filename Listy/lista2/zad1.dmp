@@ -1,0 +1,24 @@
+-- #1
+--
+-- Podaj kody, imiona i nazwiska wszystkich osób, które chodziły na dowolne zajęcia z 
+-- Algorytmów i struktur danych, a w jakimś semestrze późniejszym (o większym numerze) 
+-- chodziły na zajęcia z Matematyki dyskretnej. Za AiSD oraz MD uznaj wszystkie przedmioty,
+-- których nazwa zaczyna się od podanych nazw. Zapisz to zapytanie używając 
+-- operatora IN z podzapytaniem.
+SELECT DISTINCT u.kod_uz,u.imie,u.nazwisko
+FROM uzytkownik u
+	JOIN wybor USING (kod_uz)
+	JOIN grupa USING (kod_grupy)
+	JOIN przedmiot_semestr ps1 USING(kod_przed_sem)
+	JOIN przedmiot p USING (kod_przed)
+WHERE p.nazwa LIKE 'Algorytmy i struktury danych%'
+	AND u.kod_uz IN (
+	SELECT uzytkownik.kod_uz
+	FROM uzytkownik 
+	JOIN wybor USING(kod_uz) 
+	JOIN grupa USING(kod_grupy) 
+	JOIN przedmiot_semestr ps2 USING(kod_przed_sem)
+	JOIN przedmiot USING(kod_przed)
+	WHERE ps2.semestr_id>ps1.semestr_id
+	AND przedmiot.nazwa LIKE 'Matematyka dyskretna%'
+	);

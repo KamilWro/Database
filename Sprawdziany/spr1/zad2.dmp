@@ -1,0 +1,12 @@
+-- Zadanie 2
+--
+-- Wypisz imiona i nazwiska osób, które napisały jakiegoś posta oraz jakiś komentarz. Interesują 
+-- nas wyłącznie osoby z nazwiskami na literę E. Zadbaj aby wyniki się nie powtarzały oraz były 
+-- posortowane alfabetycznie: w pierwszej kolejności wg nazwiska, w drugiej wg imion.
+
+SELECT DISTINCT p.firstname, p.lastname
+FROM person p, post_hascreator_person p1, comment_hascreator_person c1
+WHERE c1.personid=p.id
+  AND p1.personid=p.id
+  AND p.lastname LIKE 'E%'
+ORDER BY p.lastname, p.firstname;

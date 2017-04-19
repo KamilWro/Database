@@ -1,0 +1,15 @@
+-- #3
+--
+-- Podaj kody, imiona i nazwiska osób, które prowadziły jakiś wykład, ale nigdy nie prowadziły
+-- żadnego seminarium (nie patrzymy, czy zajęcia były w tym samym semestrze). 
+-- Pisząc zapytanie użyj operatora NOT EXISTS.
+SELECT DISTINCT u.kod_uz, u.imie, u.nazwisko
+FROM uzytkownik u
+	JOIN grupa USING(kod_uz)
+WHERE grupa.rodzaj_zajec='w'
+AND NOT EXISTS (
+SELECT * 
+FROM grupa 
+WHERE grupa.rodzaj_zajec='s'
+	AND u.kod_uz=grupa.kod_uz
+);

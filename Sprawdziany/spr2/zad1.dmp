@@ -1,0 +1,23 @@
+-- Zadanie 1
+--
+-- Dla danej osoby p oznaczamy p przez L(p) liczbę różnych osób, które polubiły jakikolwiek post 
+-- stworzony przez p. Dla każdej osoby p, dla której L(p) przekracza 50 wypisz id, imię, nazwisko, 
+-- płeć oraz liczbę L(p). Wyniki posortuj wg L(p) malejąco. 
+WITH person_likes_post_person AS(
+  SELECT DISTINCT os2.id, os.personid AS like 
+  FROM person_likes_post os
+	JOIN post p ON (os.postid=p.id)
+	JOIN post_hascreator_person cr ON (cr.postid=p.id)
+	JOIN person os2 ON (os2.id=cr.personid)
+),
+popular_person AS(
+  SELECT os.id AS id, COUNT(*) AS counter
+  FROM person_likes_post_person os
+  GROUP BY os.id
+  HAVING COUNT(*)>50
+)
+( SELECT per.id, per.firstname, per.lastname, per.gender, counter  
+  FROM person per
+	JOIN popular_person pop ON(pop.id=per.id)
+  ORDER BY counter ASC
+);

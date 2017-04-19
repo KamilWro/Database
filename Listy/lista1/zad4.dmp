@@ -1,0 +1,10 @@
+--
+-- #4
+-- Do ilu przedmiotów obowiązkowych jest repetytorium?
+SELECT DISTINCT nazwa
+FROM grupa
+	JOIN przedmiot_semestr USING(kod_przed_sem)
+	JOIN przedmiot USING(kod_przed)
+WHERE przedmiot.rodzaj='o'
+	AND grupa.rodzaj_zajec='w'
+	

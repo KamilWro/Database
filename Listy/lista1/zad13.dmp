@@ -1,0 +1,13 @@
+--
+-- #13
+--
+-- W jakim okresie (od dnia do dnia) studenci zapisywali się na przedmioty w semestrze zimowym 
+-- 2009/2010? Podaj odpowiedź w formacie rrrr-mm-dd,rrrr-mm-dd
+
+SELECT DISTINCT  wybor.data::DATE
+FROM wybor
+	JOIN grupa USING (kod_grupy)
+	JOIN przedmiot_semestr USING (kod_przed_sem)
+	JOIN semestr USING (semestr_id)
+WHERE semestr.nazwa='Semestr zimowy 2009/2010'
+ORDER BY 1;
