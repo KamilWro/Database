@@ -1,0 +1,63 @@
+-- zad 2
+--
+-- Dodaj nowy semestr letni i zimowy na rok akademicki 2013/2014.
+INSERT INTO semestr(semestr,rok) 
+ VALUES ('zimowy','2013/2014'), ('letni','2013/2014');
+-- Zdefiniuj sekwencje numer_przedmiot_semestr i numer_grupy nadając im odpowiednio maksymalny numer
+-- kod_przed_sem i kod_grupy.
+
+CREATE SEQUENCE numer_przedmiot_semestr;
+SELECT setval('numer_przedmiot_semestr', MAX(kod_przed_sem))
+ FROM przedmiot_semestr;
+ALTER TABLE przedmiot_semestr
+ ALTER COLUMN kod_przed_sem
+  SET DEFAULT nextval('numer_przedmiot_semestr'); 
+ALTER SEQUENCE numer_przedmiot_semestr 
+ OWNED BY przedmiot_semestr.kod_przed_sem;  
+
+CREATE SEQUENCE numer_grupy; 
+SELECT setval('numer_grupy', MAX(kod_grupy))
+ FROM grupa;
+ALTER TABLE grupa
+ ALTER COLUMN kod_grupy
+  SET DEFAULT nextval('numer_grupy'); 
+ALTER SEQUENCE numer_grupy 
+ OWNED BY grupa.kod_grupy;  
+ 
+-- Utwórz w zdefiniowanych semestrach edycje wszystkich przedmiotów typu 
+-- obowiązkowego i podstawowego,które odbyły się w roku akademickim 2010/2011. Tworząc edycje 
+-- używaj sekwencji, by nadać im unikalny kod.
+
+INSERT INTO przedmiot_semestr
+ (semestr_id,kod_przed,strona_domowa, angielski)
+ SELECT s.semestr_id,p.kod_przed,ps.strona_domowa, ps.angielski
+ FROM semestr s,przedmiot_semestr ps 
+  JOIN semestr s1 USING (semestr_id)
+  JOIN przedmiot p USING (kod_przed)   
+ WHERE s1.rok='2010/2011'
+  AND s.rok='2013/2014'
+  AND p.rodzaj IN ('o','p')
+  AND s.semestr=s1.semestr;
+  
+-- Dla każdego przedmiotu w semestrze zdefiniuj grupę wykładową, bez terminu, bez prowadzącego i bez 
+-- sali z limitem (max_osoby) równym 100. Jeśli w zdefiniowaniu grupy przeszkadzają Ci jakieś więzy 
+-- tabeli, to je usuń. Dodając grupy używaj sekwencji numer_grupy.
+
+ALTER TABLE grupa ALTER COLUMN kod_uz DROP NOT NULL;
+
+INSERT INTO grupa
+ (kod_przed_sem, max_osoby, rodzaj_zajec)
+ SELECT kod_przed_sem, 100 AS "max_osoby", 'w' AS "rodzaj_zajec"
+ FROM przedmiot_semestr 
+   JOIN semestr USING (semestr_id)
+ WHERE rok='2013/2014';
+ 
+-- Sprawdź, czy udało Ci się zdefiniować wymagane grupy, czyli zadaj zapytanie wyszukujące je.
+
+SELECT kod_grupy, nazwa, rodzaj_zajec, max_osoby, semestr, rok
+FROM grupa 
+ JOIN przedmiot_semestr USING(kod_przed_sem) 
+ JOIN przedmiot USING(kod_przed) 
+ JOIN semestr USING(semestr_id)
+WHERE rok='2013/2014';
+

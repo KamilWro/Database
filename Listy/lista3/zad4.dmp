@@ -1,0 +1,92 @@
+-- Zad 4
+--
+-- Zdefiniuj dziedzinę rodzaje_zajec tak, by nie dopuszczała wartości pustych i obejmowała 
+-- wszystkie występujące w tej chwili rodzaje zajęć w wersji małej i dużej (litery).
+SELECT DISTINCT rodzaj_zajec FROM grupa;
+CREATE DOMAIN rodzaje_zajec AS char(1)
+ NOT NULL
+ CHECK (VALUE IN ('w','c','e','P','C','p','r','s'));
+ 
+-- Zmień tabelę grupa tak, by używała zdefiniowanej dziedziny zamiast typu char(1) w kolumnie rodzaj_zajec.
+
+ALTER TABLE grupa ALTER COLUMN rodzaj_zajec TYPE rodzaje_zajec;
+
+-- Zdefiniuj perspektywę obsada_zajec_view o polach: 
+--	prac_kod, prac_nazwisko, przed_kod, przed_nazwa, rodzaj_zajec, liczba_grup, liczba_studentow. 
+-- Pola prac_kod i prac_nazwa mają oznaczać prowadzącego zajęcia, a pola przed_kod i przed_nazwa - oczywiście przedmiot. 
+-- Pole rodzaj_zajec ma być typu rodzaje_zajec. 
+-- W polach liczba_grup i liczba_studentow mają być liczby (odpowiednio) grup i osób (z powtórzeniami),
+-- które uczęszczały na zajęcia danego typu do danego przedmiotu do danej osoby.
+
+CREATE VIEW obsada_zajec_view
+ (prac_kod,prac_nazwisko, przed_kod, przed_nazwa, rodzaj_zajec, liczba_grup, liczba_studentow)
+ AS
+ SELECT pr.kod_uz, pr.nazwisko, p.kod_przed, p.nazwa, g.rodzaj_zajec, COUNT(ps.kod_przed), COUNT(w.kod_uz)
+ FROM pracownik pr 
+  JOIN grupa g USING (kod_uz)
+  JOIN wybor w USING (kod_grupy)
+  JOIN przedmiot_semestr ps USING (kod_przed_sem)
+  JOIN przedmiot p USING (kod_przed)
+ GROUP BY g.rodzaj_zajec, p.kod_przed,p.nazwa, pr.kod_uz, pr.nazwisko; 
+ 
+-- Zdefiniuj tabelę obsada_zajec_tab o schemacie analogicznym, jak powyższa perspektywa. 
+-- Wypełnij ją danymi.
+
+CREATE TABLE obsada_zajec_tab(
+ prac_kod integer,
+ prac_nazwisko character varying(30), 
+ przed_kod integer, 
+ przed_nazwa text, 
+ rodzaj_zajec rodzaje_zajec, 
+ liczba_grup bigint, 
+ liczba_studentow bigint
+);
+
+INSERT INTO obsada_zajec_tab
+ SELECT
+  pr.kod_uz, nazwisko, p.kod_przed, p.nazwa, rodzaj_zajec, count(DISTINCT kod_grupy), count(w.kod_uz)
+ FROM pracownik pr JOIN
+  grupa USING(kod_uz) JOIN
+  wybor w USING(kod_grupy) JOIN
+  przedmiot_semestr USING(kod_przed_sem) JOIN
+  przedmiot p USING(kod_przed)
+ GROUP BY
+  pr.kod_uz, nazwisko, p.kod_przed, nazwa, rodzaj_zajec;
+  
+-- Korzystając z perspektywy znajdź dla każdego przedmiotu obowiązkowego i podstawowego osobę, która 
+-- uczyła najwięcej osób tego przedmiotu.  Następnie zrób to samo korzystając z tabeli i sprawdź czy występuje 
+-- widoczna różnica w czasie wykonania.
+
+EXPLAIN ANALYZE
+SELECT prac_nazwisko, przed_nazwa
+FROM obsada_zajec_view o 
+ JOIN przedmiot ON (kod_przed=przed_kod)
+WHERE rodzaj IN ('o','p')
+GROUP BY prac_kod,o.przed_kod, o.prac_nazwisko, przed_nazwa
+HAVING sum(liczba_studentow)>=
+ ALL(
+  SELECT sum(liczba_studentow)
+  FROM obsada_zajec_view o1 
+   JOIN przedmiot ON(przed_kod=kod_przed)
+  WHERE o1.przed_kod=o.przed_kod
+  GROUP BY prac_kod
+ );
+-- Execution time: 1484.862 ms
+ 
+ 
+EXPLAIN ANALYZE 
+SELECT prac_nazwisko, przed_nazwa
+FROM obsada_zajec_tab o 
+ JOIN przedmiot ON (kod_przed=przed_kod)
+WHERE rodzaj IN ('o','p')
+GROUP BY prac_kod,o.przed_kod, o.prac_nazwisko, przed_nazwa
+HAVING sum(liczba_studentow)>=
+ ALL(
+  SELECT sum(liczba_studentow)
+  FROM obsada_zajec_tab o1 
+   JOIN przedmiot ON(przed_kod=kod_przed)
+  WHERE o1.przed_kod=o.przed_kod
+  GROUP BY prac_kod
+ );
+-- Execution time: 49.970 ms
+ 

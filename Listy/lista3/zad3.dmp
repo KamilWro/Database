@@ -1,0 +1,48 @@
+-- Zadanie 3
+-- Załóż tabele: pracownik oraz student. Dla każdej tabeli zdefiniuj właściwe dla niej pola 
+-- występujące w tabeli uzytkownik.
+
+CREATE TABLE pracownik (LIKE uzytkownik);
+ALTER TABLE pracownik DROP COLUMN semestr;
+ALTER TABLE pracownik ADD CONSTRAINT pk_pracownik PRIMARY KEY(kod_uz); 
+
+CREATE TABLE student (LIKE uzytkownik);
+ALTER TABLE student ADD CONSTRAINT pk_student PRIMARY KEY(kod_uz); 
+
+-- Wpisz do tabeli pracownik wszystkie osoby, które kiedykolwiek prowadziły zajęcia.
+INSERT INTO pracownik(kod_uz,imie,nazwisko)
+ SELECT kod_uz,imie,nazwisko
+ FROM uzytkownik
+ WHERE kod_uz IN (
+  SELECT kod_uz
+  FROM grupa
+ );
+ 
+-- Wpisz do tabeli student osoby, które kiedykolwiek uczęszczały na zajęcia.
+INSERT INTO student(kod_uz,imie,nazwisko,semestr)
+ SELECT kod_uz,imie,nazwisko,semestr
+ FROM uzytkownik
+ WHERE kod_uz IN (
+  SELECT kod_uz
+  FROM wybor
+ );
+ 
+-- Przekieruj klucze obce wskazujące na tabelę uzytkownik tak, by wskazywały teraz odpowiednio 
+-- na tabele pracownik i student. Usuń tabelę uzytkownik.
+ALTER TABLE wybor 
+ DROP CONSTRAINT fk_wybor_uz;
+ALTER TABLE wybor 
+ ADD  CONSTRAINT fk_wybor_st 
+ FOREIGN KEY(kod_uz) 
+ REFERENCES student(kod_uz) 
+ DEFERRABLE;
+
+ALTER TABLE grupa 
+ DROP CONSTRAINT fk_grupa_uz;
+ALTER TABLE grupa 
+ ADD  CONSTRAINT fk_grupa_pr 
+ FOREIGN KEY(kod_uz) 
+ REFERENCES pracownik(kod_uz) 
+ DEFERRABLE;
+
+DROP TABLE uzytkownik;

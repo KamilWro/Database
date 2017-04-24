@@ -1,0 +1,57 @@
+-- Zad1
+--
+-- Zdefinuj dziedzinę semestry z dwiema wartościami:'zimowy' i 'letni' oraz niedopuszczalną wartością pustą
+
+
+-- Zdefiniuj dziedzinę semestry z dwiema wartościami: 'zimowy' i 'letni' oraz niedopuszczalną wartością pustą
+CREATE DOMAIN semestry AS text
+ CHECK (VALUE IN ('zimowy','letni')) NOT NULL;
+	
+-- Zdefiniuj sekwencję numer_semestru i nadaj jej wartość równą pierwszej nieużywanej liczbie w kolumnie semestr_id.
+
+CREATE SEQUENCE numer_semestru;
+
+SELECT setval('numer_semestru',max(semestr_id)) 
+ FROM semestr;
+
+ALTER TABLE semestr ALTER COLUMN semestr_id
+ SET DEFAULT nextval('numer_semestru');
+ 
+ALTER SEQUENCE numer_semestru OWNED BY semestr.semestr_id;
+
+-- Do tabeli semestr dodaj dwa nowe atrybuty:
+-- 	semestr – kolumnę typu semestry;
+-- 	rok – kolumnę typu tekstowego opisującą rok akademicki w formacie: '2010/2011';
+ALTER TABLE semestr ADD COLUMN semestr semestry DEFAULT 'zimowy';
+
+ALTER TABLE semestr ADD COLUMN rok char(9);
+
+-- Wypełnij kolumny semestr i rok rozbijając nazwę każdego semestru na typ semestru i 
+-- rok akademicki (sprawdź w dokumentacji PostgreSQL, jakie funkcje tekstowe są dostępne).
+UPDATE semestr 
+ SET semestr='letni' WHERE nazwa LIKE '%letni%';
+ 
+UPDATE semestr
+ SET rok = substring(nazwa, position('/' IN nazwa)-4, 9);
+
+-- Usuń z tabeli semestr kolumnę nazwa.
+ALTER TABLE semestr DROP COLUMN nazwa;
+
+-- Dodaj do kolumn semestr i rok wartości domyślne, które dla bieżącej daty od stycznia do czerwca 
+-- (włącznie) ustawiają domyślny semestr letni i rok (x-1)/x; a dla  daty od lipca do grudnia 
+-- (włącznie) - semestr zimowy i rok x/(x+1) (sprawdź w dokumentacji PostgreSQL dostępne funkcje daty i czasu).
+
+ALTER TABLE semestr ALTER COLUMN semestr DROP DEFAULT;
+
+ALTER TABLE semestr ALTER COLUMN semestr SET DEFAULT
+ CASE WHEN extract(month FROM now()) BETWEEN 1 AND 6
+  THEN 'letni' ELSE 'zimowy'
+ END;
+
+
+ALTER TABLE semestr ALTER COLUMN rok SET DEFAULT
+ CASE WHEN extract(month FROM now()) BETWEEN 1 AND 6
+  THEN extract(year FROM now())-1||'/'||extract(year FROM now())   
+  ELSE extract(year FROM now())||'/'||extract(year FROM now())+1
+ END;
+
