@@ -1,0 +1,110 @@
+-- W tym zadaniu bazę danych uzupełnimy o dane o praktykach zawodowych.
+-- Załóż tabelę firma o atrybutach (pamiętaj o kluczach i ograniczeniach  NULL/NOT NULL):
+-- kod_firmy - unikalny kod generowany przez sekwencję;
+-- nazwa - pole niepuste,
+-- adres - pole niepuste,
+-- kontakt - pole niepuste.
+
+CREATE TABLE firma(
+ kod_firmy  SERIAL PRIMARY KEY,
+ nazwa      text   NOT NULL,
+ adres      text   NOT NULL,
+ kontakt    text   NOT NULL
+);
+
+--Wpisz krotki: (SNS, Wrocław, H.Kloss); (BIT, Kraków, R.Bruner); (MIT, Berlin, J.Kos);
+INSERT INTO firma(nazwa,adres,kontakt) VALUES
+ ('SNS','Wrocław','H.Kloss'),
+ ('BIT','Kraków','R.Bruner'),
+ ('MIT','Berlin','J.Kos');
+
+-- Załóż tabelę oferta_praktyki o atrybutach:
+-- kod_oferty - automatycznie generowany unikalny klucz tablicy firma,
+-- kod_firmy - klucz obcy do tablicy firmy;
+-- semestr_id - klucz obcy do tablicy semestr;
+-- liczba_miejsc - liczba dodatnia;
+
+CREATE TABLE oferta_praktyki( 
+ kod_oferty    SERIAL PRIMARY KEY,
+ kod_firmy     int    NOT NULL REFERENCES firma(kod_firmy),
+ semestr_id    int    REFERENCES semestr(semestr_id),
+ liczba_miejsc int
+);
+
+-- Wpisz na semestr letni 2013/14 oferty: SNS (3 miejsc) i MIT (2 miejsca);
+
+INSERT INTO oferta_praktyki(kod_firmy,semestr_id,liczba_miejsc)
+  SELECT kod_firmy,semestr_id,3
+  FROM firma,semestr
+  WHERE firma.nazwa='SNS' 
+   AND rok='2013/2014'
+   AND semestr='letni';
+
+INSERT INTO oferta_praktyki(kod_firmy,semestr_id,liczba_miejsc)
+  SELECT kod_firmy,semestr_id,2
+  FROM firma,semestr
+  WHERE firma.nazwa='MIT' 
+   AND rok='2013/2014'
+   AND semestr='letni';
+
+-- Załóż tabelę praktyki o atrybutach:
+-- student - kod studenta,
+-- opiekun - kod pracownika i klucz obcy do tabeli pracownik,
+-- oferta - kod oferty i klucz obcy do tabeli oferta_praktyki.
+
+CREATE TABLE praktyki(
+ student   int   NOT NULL REFERENCES student,
+ opiekun   int   REFERENCES pracownik,
+ oferta    int   NOT NULL REFERENCES oferta_praktyki
+);
+-- (*) Wypełnij wszystkie wolne miejsca na praktykach studentami z semestru pomiędzy 6 i 10, którzy jeszcze nie zaliczyli praktyki.
+
+BEGIN TRANSACTION;
+ INSERT INTO praktyki(student,oferta)
+  SELECT kod_uz,kod_oferty
+  FROM student s,oferta_praktyki o
+  WHERE kod_uz =
+   (
+    SELECT MAX(kod_uz) 
+    FROM student 
+    WHERE semestr BETWEEN 6 AND 10 
+     AND kod_uz NOT IN (SELECT student FROM praktyki)
+   )
+  AND kod_oferty =
+   (
+    SELECT MAX(kod_oferty) 
+    FROM oferta_praktyki
+    WHERE liczba_miejsc > 0 
+     AND semestr_id = (SELECT MAX(semestr_id) FROM semestr)
+   );
+
+UPDATE oferta_praktyki SET liczba_miejsc = liczba_miejsc - 1
+ WHERE kod_oferty =
+  (SELECT MAX(kod_oferty) 
+   FROM oferta_praktyki
+   WHERE liczba_miejsc > 0 
+    AND semestr_id = (SELECT MAX(semestr_id) FROM semestr)
+  );
+  
+COMMIT;
+
+-- Sprawdź, ilu studentów z semestru od 6 do 10 nie zaliczyło jeszcze praktyki oraz, ile pozostało
+-- wolnych ofert praktyki na bieżący (największy) semestr w bazie.
+
+SELECT COUNT(*) 
+FROM student
+WHERE semestr BETWEEN 6 AND 10
+ AND kod_uz NOT IN (SELECT student FROM praktyki);
+
+SELECT SUM(liczba_miejsc)
+FROM oferta_praktyki
+WHERE semestr_id = (SELECT MAX(semestr_id) FROM semestr);
+
+-- Usuń z bazy danych wszystkie oferty, do których nie została stworzona ani jedna 
+-- praktyka i wszystkie firmy, których żadna oferta nie została wykorzystana.
+
+DELETE FROM oferta_praktyki
+WHERE kod_oferty NOT IN (SELECT oferta FROM praktyki);
+
+DELETE FROM firma
+WHERE kod_firmy NOT IN (SELECT kod_firmy FROM oferta_praktyki);

@@ -1,0 +1,44 @@
+-- Zdefiniuj perspektywę plan_zajec, która pokaże dla każdej osoby, semestru i przedmiotu 
+-- termin, w jaki osoba powinna uczęszczać na zajęcia z tego przedmiotu (także do jakiej sali i kto 
+-- prowadzi zajęcia).
+
+CREATE VIEW plan_zajec(
+ kod_stud, nazwisko_stud, semestr_id, rok, semestr,kod_przed, 
+ nazwa_przed,termin, sala, kod_prac, nazwisko_prac) AS
+SELECT
+ u1.kod_uz,u1.nazwisko, s.semestr_id,rok,s.semestr,
+ p.kod_przed,p.nazwa,termin,sala,u2.kod_uz, u2.nazwisko
+FROM student u1 
+ JOIN wybor USING(kod_uz)
+ JOIN grupa USING(kod_grupy)
+ JOIN pracownik u2 ON (grupa.kod_uz=u2.kod_uz)
+ JOIN przedmiot_semestr USING(kod_przed_sem)
+ JOIN przedmiot p USING(kod_przed)
+ JOIN semestr s USING(semestr_id);
+
+-- Wykorzystaj perspektywę plan_zajec, by pokazać plan zajęć konkretnego studenta (wybierz dowolnie wg kodu) w konkretnym semestrze.
+
+-- wybieramy dowolnego studenta, np. o kodzie 3830
+-- i dowolny semestr, np. o kodzie 39;
+
+SELECT
+ nazwisko_stud, rok, semestr, nazwa_przed, termin, sala, nazwisko_prac
+FROM plan_zajec
+WHERE kod_stud = 3830 AND semestr_id = 39;
+
+-- Wykorzystaj perspektywę plan_zajec, by pokazać plan zajęć konkretnego pracownika (wybierz dowolnie wg kodu) w konkretnym semestrze.
+-- wybieramy dowolnego pracownika (187) i dowolny semestr (39)
+SELECT DISTINCT
+ nazwisko_prac,rok,semestr,nazwa_przed,termin,sala
+FROM plan_zajec
+WHERE kod_prac = 187 
+ AND semestr_id = 39;
+
+-- Wykorzystaj perspektywę plan_zajec, by pokazać plan w konkretnej sali w konkretnym semestrze.
+
+-- wybieramy dowolny semestr (39) i dowolną salę (25);
+-- pamiętajmy, że atrybut sala to tekst;
+SELECT DISTINCT nazwa_przed, termin, nazwisko_prac
+FROM plan_zajec
+WHERE semestr_id = 39 
+ AND sala = '25';
